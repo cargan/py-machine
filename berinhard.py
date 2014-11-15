@@ -3,10 +3,12 @@
 import sys, getopt #command line tools
 import psutil, subprocess #memory and disk
 from time import strftime #atetime #data
+import feedparser #rss
 
 class CommandManager(object):
     command = None
-    _actions = set(['system_stats', 'dummy'])
+    _actions = set(['system_stats', 'dummy', 'news_headlines'])
+
     def __init__(self, *args, **kwargs):
         self.command = kwargs.get('command')
         if self.command == None:
@@ -24,14 +26,18 @@ class CommandManager(object):
         df = subprocess.Popen(["df", "berinhard.py"], stdout=subprocess.PIPE)
         output = df.communicate()[0]
         return output
-        # device, size, used, available, percent, mountpoint, qq, aa, ad = \
-        #     output.split("\n")[1].split()
 
     def system_stats(self):
         print 'SYSTEM STATS OUTPUT'
         print 'DATE', strftime('%Y-%m-%d %H:%M:%S')
         print 'MEMORY USAGE: ', self._get_memory_usage()
         print 'DISK USAGE: ', self._get_disk_usage()
+
+    def news_headlines(self):
+        feed = feedparser.parse('feed://www.delfi.lt/rss/feeds/lithuania.xml')
+        for entry in feed['entries']:
+            print entry['title'], "\n", entry['summary'], "\n\n"
+
 
 
 def main(argv):
